@@ -6,7 +6,7 @@
     "scripts": {
         "dev": "node ./src/crawler.js"
     },
-    "bin": "crawier.js",
+    "bin": "./src/crawier.js",
     "author": "",
     "license": "ISC",
     "dependencies": {
