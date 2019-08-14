@@ -4,7 +4,7 @@
     "description": "",
     "main": "crawler.js",
     "scripts": {
-        "dev": "node ./src/crawler.js"
+        "dev": "tsc && node ./dist/crawler.js"
     },
     "bin": "./src/crawier.js",
     "author": "",
