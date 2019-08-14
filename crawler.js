@@ -52,7 +52,7 @@ async function main(start, end) {
     return total;
 }
 
-main(1100, 1110).then(data => {
+main(1100, 1510).then(data => {
     console.log(`end: 下载 ${data}`);
 });
 
