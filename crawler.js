@@ -12,7 +12,7 @@ async function getImgUrl(url) {
     try {
         response = await axios.get(url);
     } catch (error) {
-        console.log(`error:${error}`);
+        console.log(`getImgUrl - error:${error}`);
         return null;
     }
 
@@ -24,6 +24,7 @@ async function getImgUrl(url) {
 
 async function getImgStream(url) {
     if (!url) {
+        console.log(`url不存在`);
         return null;
     }
     const response = await axios.get(url, { responseType: 'stream' });
@@ -32,28 +33,66 @@ async function getImgStream(url) {
 
 async function main(start, end) {
     let total = 0;
-    for (let index = start; index < end; index++) {
-        const url = await getImgUrl(host + index);
-        const stream = await getImgStream(url);
-
-        if (!fs.existsSync('./oneimg')) {
-            fs.mkdirSync('oneimg');
-        }
-        const ws = fs.createWriteStream(`./oneimg/${index}.jpg`);
-
-        try {
-            stream.pipe(ws);
-            total++;
-            console.log(`${index}:success`);
-        } catch (error) {
-            console.log(`${index}:fail , fail message: ${error}`);
-        }
+    if (!fs.existsSync('./oneimg')) {
+        fs.mkdirSync('oneimg');
     }
-    return total;
+    let promisesAll = [];
+    for (let index = start; index < end; index++) {
+        promisesAll.push(async () => {
+            const url = await getImgUrl(host + index);
+            const stream = await getImgStream(url);
+
+            if (!stream) {
+                console.log(`${index}:fail `);
+                return;
+            }
+
+            const ws = fs.createWriteStream(`./oneimg/${index}.jpg`);
+
+            try {
+                stream.pipe(ws);
+                total++;
+                console.log(`${index}:success`);
+            } catch (error) {
+                console.log(`${index}:fail , fail message: ${error}`);
+            }
+        });
+    }
+    // console.log(promisesAll);
+
+    // await Promise.all(promisesAll).then(() => total);
+    for (let pro of promisesAll) {
+        pro();
+    }
+
+    // return total;
 }
 
-main(1100, 1510).then(data => {
-    console.log(`end: 下载 ${data}`);
-});
+main(1500, 1520);
+// .then(data => {
+//     console.log(`end: 成功下载 ${data}`);
+// });
+
+async function aa() {
+    const arr = [];
+    let totla = 0;
+    for (let index = 0; index < 10; index++) {
+        arr.push(
+            new Promise((reslove, reject) => {
+                console.log(index);
+                setTimeout(() => {
+                    console.log(index);
+                    totla++;
+                    reslove();
+                }, Math.random() * 10000);
+            })
+        );
+    }
+    return Promise.all(arr).then(() => {
+        return totla;
+    });
+}
+
+//aa().then(data => console.log(`${data}:end`));
 
 // 神奇的代码：readable.pipe(writable)
